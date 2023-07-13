@@ -6,6 +6,10 @@ const Player = ({ position, couleur, name }) => {
     yellow: ["bg-yellow-600", "bg-yellow-800"],
     purple: ["bg-purple-600", "bg-purple-800"],
     pink: ["bg-pink-600", "bg-pink-800"],
+    orange: ["bg-orange-600", "bg-orange-800"],
+    teal: ["bg-teal-600", "bg-teal-800"],
+    indigo: ["bg-indigo-600", "bg-indigo-800"],
+    fuchsia: ["bg-fuchsia-600", "bg-fuchsia-800"],
   };
   return (
     <div className="flex flex-col items-center">

@@ -1,20 +1,21 @@
 "use client";
 import BoxGame from "@/components/box";
 import De from "@/components/de";
+import EndCard from "@/components/endCard";
 import Player from "@/components/player";
 import { useEffect, useState } from "react";
 
 const player = [
-  { name: "Romain", position: 0, color: "red" },
-  { name: "Lucas", position: 0, color: "blue" },
-  { name: "Quentin", position: 0, color: "green" },
-  { name: "Jean bastite", position: 0, color: "yellow" },
-  { name: "Joueur", position: 0, color: "purple" },
-  { name: "Joueur 5", position: 0, color: "purple" },
-  { name: "Joueur 5", position: 0, color: "purple" },
-  { name: "Joueur 5", position: 0, color: "purple" },
-  { name: "Joueur 5", position: 0, color: "purple" },
-  { name: "Joueur 5", position: 0, color: "purple" },
+  { name: "Romain", position: 30, color: "red" },
+  // { name: "Lucas", position: 0, color: "blue" },
+  // { name: "Quentin", position: 0, color: "green" },
+  // { name: "TTTTTTTTTT", position: 0, color: "yellow" },
+  // { name: "Joueur 5", position: 0, color: "purple" },
+  // { name: "Joueur 6", position: 0, color: "pink" },
+  // { name: "Joueur 7", position: 0, color: "orange" },
+  // { name: "Joueur 8", position: 0, color: "indigo" },
+  // { name: "Joueur 9", position: 0, color: "teal" },
+  // { name: "Joueur 10", position: 0, color: "fuchsia" },
   // Ajoutez ici les autres joueurs avec leurs noms et positions initiales
 ];
 
@@ -27,6 +28,8 @@ const GamePage = () => {
   const [title, setTitle] = useState(
     `A ${players[currentPlayerIndex].name} de lancer le dé`
   );
+  const [disabledButton, setDisabledButton] = useState(false);
+  const [end, setEnd] = useState(false);
 
   const gameBaseSize = mode === "facile" ? 10 : mode === "normal" ? 20 : 30;
 
@@ -105,22 +108,88 @@ const GamePage = () => {
   }, []);
 
   const lancerDe = () => {
+    setDisabledButton(true);
     const diceRoll = Math.floor(Math.random() * 3) + 1;
-    setDeNumber(diceRoll);
 
-    const currentPlayer = players[currentPlayerIndex];
-
-    setTitle(`${currentPlayer.name} avance de ${diceRoll} case !`);
+    const interval = setInterval(() => {
+      setDeNumber(0);
+      setDeNumber(Math.floor(Math.random() * 3) + 1);
+    }, 300);
 
     setTimeout(() => {
-      currentPlayer.position += diceRoll;
+      clearInterval(interval);
+      setDeNumber(diceRoll);
 
-      if (currentPlayer.position >= gameBaseSize) {
+      const currentPlayer = players[currentPlayerIndex];
+
+      setTitle(`${currentPlayer.name} avance de ${diceRoll} case !`);
+
+      if (gameBase[currentPlayer.position + diceRoll] == "normal") {
+        setTimeout(() => {
+          step(1, currentPlayer, diceRoll);
+          setTimeout(() => {
+            step(4, currentPlayer, diceRoll);
+          }, 2000);
+        }, 2000);
+      } else {
+        for (let i = 1; i <= 4; i++) {
+          setTimeout(() => {
+            step(i, currentPlayer, diceRoll);
+          }, i * 2000);
+        }
+      }
+    }, 3000);
+  };
+
+  const step = (numberStep, currentPlayer, diceRoll) => {
+    // etape 1 faire avancer le joueur
+    if (numberStep == 1) {
+      console.log((currentPlayer.position += diceRoll), gameBaseSize + 2);
+      if ((currentPlayer.position += diceRoll >= gameBaseSize + 1)) {
+        currentPlayer.position = gameBaseSize + 1;
         presentChoicesToPlayer();
         endGame();
-        return;
+      } else {
+        currentPlayer.position += diceRoll;
       }
 
+      setPlayers((prev) => [...prev]);
+      setDeNumber(null);
+    } else if (numberStep == 2) {
+      // etape 2 check si le joueur est sur une case spécial
+      switch (gameBase[currentPlayer.position]) {
+        case "avancer":
+          setTitle(`Bonus : ${currentPlayer.name} avance de 1 case !`);
+          currentPlayer.position += 1;
+          setPlayers((prev) => [...prev]);
+          break;
+        case "reculer":
+          setTitle(`Malus : ${currentPlayer.name} recule de 1 case !`);
+          currentPlayer.position -= 1;
+          setPlayers((prev) => [...prev]);
+          break;
+        default:
+          break;
+      }
+    } else if (numberStep == 3) {
+      // etape 3 check la case du joueur
+      switch (gameBase[currentPlayer.position]) {
+        case "+4":
+          setTitle(`${currentPlayer.name} bois 4 gorgées !`);
+          break;
+        case "+2":
+          setTitle(`${currentPlayer.name} bois 2 gorgées !`);
+          break;
+        case "-4":
+          setTitle(`${currentPlayer.name} donne 4 gorgées !`);
+          break;
+        case "-2":
+          setTitle(`${currentPlayer.name} donne 2 gorgées !`);
+          break;
+        default:
+          break;
+      }
+    } else if (numberStep == 4) {
       if (currentPlayerIndex === players.length - 1) {
         setCurrentPlayerIndex(0);
         setTitle(`A ${players[0].name} de lancé le dé`);
@@ -128,8 +197,8 @@ const GamePage = () => {
         setCurrentPlayerIndex((prev) => prev + 1);
         setTitle(`A ${players[currentPlayerIndex + 1].name} de lancé le dé`);
       }
-      setPlayers((prev) => [...prev]);
-    }, 1000);
+      setDisabledButton(false);
+    }
   };
 
   const presentChoicesToPlayer = () => {
@@ -148,65 +217,52 @@ const GamePage = () => {
 
   const endGame = () => {
     console.log("La partie est terminée.");
+    setEnd(true);
     // Enregistrez ici les informations de la partie dans le local storage si nécessaire
   };
 
-  useEffect(() => {
-    players.forEach((element) => {
-      setTimeout(() => {
-        if (
-          gameBase &&
-          (gameBase[element.position] == "avancer" ||
-            gameBase[element.position] == "reculer")
-        ) {
-          setTitle(
-            `${
-              gameBase[element.position] == "avancer"
-                ? `Bonus : ${element.name} avance`
-                : `Malus : ${element.name} recule`
-            } de 1 case !`
-          );
-          gameBase[element.position] == "avancer"
-            ? (element.position += 1)
-            : (element.position -= 1);
-          setPlayers((prev) => [...prev]);
-        }
-      }, 1000);
-    });
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [players]);
-
   return (
-    <>
-      <div className="min-w-[100vw] min-h-[100vh] bg-slate-900 p-4">
+    <div className="min-w-[100vw] min-h-[100vh] bg-slate-900 p-4">
+      {!end && (
         <div className="w-full h-14 bg-green-500 rounded-lg my-2 sticky top-4 z-20 shadow-sm shadow-slate-600 flex justify-center items-center">
           <h1 className=" text-white font-bold text-xl">{title}</h1>
         </div>
-        <div className="flex flex-col-reverse items-center gap-5 relative">
-          {gameBase?.map((elm, key) => (
-            <BoxGame
-              key={key}
-              name={elm}
-              players={players.filter(({ position }) => position == key)}
-            />
-          ))}
-          {/* Vous pouvez afficher ici la position du joueur sur la grille */}
-          {/* Exemple : <p>Position du joueur : {players[currentPlayerIndex].position}</p> */}
+      )}
+      {end && (
+        <div className="bg-[#2d2d2d] sticky top-4 left-0 z-20 h-[40vh] rounded-lg p-2 mb-4">
+          <h1 className="text-xl font-bold text-center">
+            Félicitations {players[currentPlayerIndex].name} tu as gagné
+          </h1>
+          <h2 className="text-lg font-bold text-center mt-2">
+            🍻 choisi une des 3 carte 🍻 :
+          </h2>
+          <EndCard />
         </div>
+      )}
+      <div className="flex flex-col-reverse items-center gap-5 relative">
+        {gameBase?.map((elm, key) => (
+          <BoxGame
+            key={key}
+            name={elm}
+            players={players.filter(({ position }) => position == key)}
+          />
+        ))}
+      </div>
 
-        <div className="m-4 flex flex-col justify-center items-center gap-4 sticky bottom-4 z-20">
+      {!end && (
+        <div className="mt-40 flex flex-col justify-center items-center gap-4 sticky bottom-8 z-20">
           {/* Affichez ici le résultat du dé */}
-          <De number={deNumber} />
+          {deNumber && <De number={deNumber} />}
           <button
             className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full"
             onClick={lancerDe}
+            disabled={disabledButton}
           >
             LANCER LE DÉS
           </button>
         </div>
-      </div>
-    </>
+      )}
+    </div>
   );
 };
 
