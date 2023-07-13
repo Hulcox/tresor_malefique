@@ -40,6 +40,7 @@ const HomePage = () => {
       "mode",
       mode == "facile" ? 10 : mode == "normal" ? 20 : 30
     );
+    localStorage.removeItem("grid");
     localStorage.setItem("player", JSON.stringify(player));
     router.push("/game");
   };

@@ -31,7 +31,31 @@ const GamePage = () => {
   const [end, setEnd] = useState(false);
   const router = useRouter();
 
-  const CreateGameBase = () => {
+  useEffect(() => {
+    const player = localStorage.getItem("player");
+    if (player) {
+      setPlayers(JSON.parse(player));
+      const mode = localStorage.getItem("mode");
+      console.log(mode);
+      setGameBaseSize(Number(mode));
+      setTitle(`A ${JSON.parse(player)[0]?.name} de lancer le dé`);
+      if (localStorage.getItem("grid")) {
+        setGameBase(JSON.parse(localStorage.getItem("grid")));
+      } else {
+        const grid = CreateGameBase(Number(mode));
+        localStorage.setItem("grid", JSON.stringify(grid));
+        setGameBase(grid);
+      }
+    } else {
+      router.push("/");
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  console.log(gameBaseSize);
+
+  const CreateGameBase = (size) => {
     const line = ["start"];
 
     const blocksConfig = [
@@ -44,7 +68,7 @@ const GamePage = () => {
       { type: "normal", probability: 0.05 },
     ];
 
-    for (let i = 0; i < gameBaseSize; i++) {
+    for (let i = 0; i < size; i++) {
       const randomNumber = Math.random();
       let selectedBlockType = "";
 
@@ -99,28 +123,6 @@ const GamePage = () => {
 
     return line;
   };
-
-  useEffect(() => {
-    const player = localStorage.getItem("player");
-    if (player) {
-      setPlayers(JSON.parse(player));
-      const mode = localStorage.getItem("mode");
-      console.log(mode);
-      setGameBaseSize(Number(mode));
-      setTitle(`A ${JSON.parse(player)[0]?.name} de lancer le dé`);
-      if (localStorage.getItem("grid")) {
-        setGameBase(JSON.parse(localStorage.getItem("grid")));
-      } else {
-        const grid = CreateGameBase();
-        localStorage.setItem("grid", JSON.stringify(grid));
-        setGameBase(grid);
-      }
-    } else {
-      router.push("/");
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   useEffect(() => {
     window.scrollTo({
