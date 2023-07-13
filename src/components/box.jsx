@@ -13,8 +13,8 @@ const BoxGame = ({ name, players }) => {
           className="rounded-md"
         />
       )}
-      <div className="absolute -bottom-2 -left-2 flex flex-wrap gap-2 z-10">
-        {players.map(({ color, position, name }, key) => (
+      <div className="absolute -bottom-2 left-0 flex flex-wrap gap-2 z-10">
+        {players?.map(({ color, position, name }, key) => (
           <Player couleur={color} name={name} key={key} />
         ))}
       </div>
