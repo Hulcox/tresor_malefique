@@ -36,7 +36,10 @@ const HomePage = () => {
   const handlePlayerName = (e) => setPlayerName(e.target.value);
 
   const play = (mode) => {
-    localStorage.setItem("mode", mode);
+    localStorage.setItem(
+      "mode",
+      mode == "facile" ? 10 : mode == "normal" ? 20 : 30
+    );
     localStorage.setItem("player", JSON.stringify(player));
     router.push("/game");
   };
@@ -49,7 +52,7 @@ const HomePage = () => {
         <div className="relative flex">
           <input
             type="text"
-            className="inputPlayer border border-black rounded-lg text-black bg-slate-400 opacity-60"
+            className="inputPlayer border border-black rounded-lg text-white bg-slate-400"
             placeholder="Maximun 8 charactères"
             onChange={handlePlayerName}
           />

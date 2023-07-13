@@ -23,15 +23,13 @@ import { useEffect, useState } from "react";
 const GamePage = () => {
   const [gameBase, setGameBase] = useState(null);
   const [deNumber, setDeNumber] = useState(null);
-  const [mode, setMode] = useState(null);
+  const [gameBaseSize, setGameBaseSize] = useState(0);
   const [players, setPlayers] = useState([]);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [title, setTitle] = useState("");
   const [disabledButton, setDisabledButton] = useState(false);
   const [end, setEnd] = useState(false);
   const router = useRouter();
-
-  const gameBaseSize = mode === "facile" ? 10 : mode === "normal" ? 20 : 30;
 
   const CreateGameBase = () => {
     const line = ["start"];
@@ -106,7 +104,9 @@ const GamePage = () => {
     const player = localStorage.getItem("player");
     if (player) {
       setPlayers(JSON.parse(player));
-      setMode(localStorage.getItem("mode"));
+      const mode = localStorage.getItem("mode");
+      console.log(mode);
+      setGameBaseSize(Number(mode));
       setTitle(`A ${JSON.parse(player)[0]?.name} de lancer le dé`);
       if (localStorage.getItem("grid")) {
         setGameBase(JSON.parse(localStorage.getItem("grid")));
